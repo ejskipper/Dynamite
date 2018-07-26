@@ -1,12 +1,14 @@
+//counter the antiCounterBot :O
+
 function getTheirPreviousMove(gamestate) {
     const lastRound = gamestate.rounds.length-1;
     const previousMove = gamestate.rounds[lastRound].p2;
     return previousMove;
 }
 
-function counterPreviousMove(gamestate) {
-    const previousMove = getTheirPreviousMove(gamestate);
-    switch (previousMove) {
+
+function counterMove(move) {
+    switch (move) {
         case 'R': return 'P';
         case 'P': return 'S';
         case 'S': return 'R';
@@ -19,9 +21,15 @@ class Bot {
     makeMove(gamestate) {
         
         if (gamestate.rounds[0]) {
-            return counterPreviousMove(gamestate);
+            const theirPreviousMove = getTheirPreviousMove(gamestate);
+            const theyPredictMyMove = counterMove(theirPreviousMove);
+            const theirPredictedMove = counterMove(theyPredictMyMove);
+            return counterMove(theirPredictedMove);
+
         } else {
-            return 'R';
+            const myArray = ['R','P','S'];
+            let rand = myArray[Math.floor(Math.random() * myArray.length)];
+            return rand;
         }
     }
 }
