@@ -52,6 +52,16 @@ class Bot {
             return nextMove;
         }
 
+        if (f.areTheirLastFourSame(gamestate) === true) {
+            Bot.theyAreSpamming = f.getTheirPreviousMove(gamestate);
+            Bot.spammingRound = gamestate.rounds.length;
+            return f.counterMove(f.getTheirPreviousMove(gamestate));
+        }
+
+        if (Bot.spammingRound > gamestate.rounds.length-4) {
+            return f.counterMove(Bot.theyAreSpamming);
+        }
+
          else {                                                                     //Play a random move
             const myArray = ['R','P','S']; 
             let rand = myArray[Math.floor(Math.random() * myArray.length)];

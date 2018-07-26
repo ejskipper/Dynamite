@@ -29,4 +29,11 @@ function getTestResponse(gamestate) {
     return testResponse;
 }
 
-module.exports = {getMyPreviousMove,getTheirPreviousMove,counterMove,getTestResponse};
+function areTheirLastFourSame(gamestate) {
+    const lastRound = gamestate.rounds.length-1;
+    const lastFour = [ gamestate.rounds[lastRound].p2, gamestate.rounds[lastRound-1].p2, gamestate.rounds[lastRound-2].p2, gamestate.rounds[lastRound-3].p2 ];
+    const allEqual = !!lastFour.reduce(function(a, b){ return (a === b) ? a : NaN; });
+    return allEqual;
+}
+
+module.exports = {getMyPreviousMove,getTheirPreviousMove,counterMove,getTestResponse,areTheirLastFourSame};
