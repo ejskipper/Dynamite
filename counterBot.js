@@ -1,27 +1,15 @@
-function getTheirPreviousMove(gamestate) {
-    const lastRound = gamestate.rounds.length-1;
-    const previousMove = gamestate.rounds[lastRound].p2;
-    return previousMove;
-}
-
-function counterPreviousMove(gamestate) {
-    const previousMove = getTheirPreviousMove(gamestate);
-    switch (previousMove) {
-        case 'R': return 'P';
-        case 'P': return 'S';
-        case 'S': return 'R';
-        case 'D': return 'W';
-        case 'W': return 'P';
-    }
-}
+const f = require('./functions.js');
 
 class Bot {
     makeMove(gamestate) {
         
         if (gamestate.rounds[0]) {
-            return counterPreviousMove(gamestate);
+            const previousMove = f.getTheirPreviousMove(gamestate);
+            return f.counterMove(previousMove);
         } else {
-            return 'R';
+            const myArray = ['R','P','S'];
+            let rand = myArray[Math.floor(Math.random() * myArray.length)];
+            return rand;
         }
     }
 }

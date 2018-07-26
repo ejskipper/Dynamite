@@ -6,8 +6,9 @@ class Bot {
         if (gamestate.rounds[0]) {
             const myPreviousMove = f.getMyPreviousMove(gamestate);
             const theirPredictedMove = f.counterMove(myPreviousMove);
-            return f.counterMove(theirPredictedMove);
-
+            const theyPredictMyMove = f.counterMove(theirPredictedMove);
+            const whatIReallyPredict = f.counterMove(theyPredictMyMove);
+            return f.counterMove(whatIReallyPredict);
         } else {
             const myArray = ['R','P','S'];
             let rand = myArray[Math.floor(Math.random() * myArray.length)];
@@ -15,5 +16,6 @@ class Bot {
         }
     }
 }
+
 
 module.exports = new Bot();
