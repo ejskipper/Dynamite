@@ -1,5 +1,97 @@
-const f = require('./functions');
-const behaviour = require('./botFunctions');
+function getMyPreviousMove(gamestate) {
+    const lastRound = gamestate.rounds.length-1;
+    const previousMove = gamestate.rounds[lastRound].p1;
+    return previousMove;
+}
+
+function getTheirPreviousMove(gamestate) {
+    const lastRound = gamestate.rounds.length-1;
+    const previousMove = gamestate.rounds[lastRound].p2;
+    return previousMove;
+}
+
+
+function counterMove(move) {
+    switch (move) {
+        case 'R': return 'P';
+        case 'P': return 'S';
+        case 'S': return 'R';
+        case 'D': return 'W';
+        case 'W': return 'P';
+    }
+}
+
+function getTestResponse(gamestate) {
+    let testResponse = [];
+    for (i=1; i<16; i++) {
+        testResponse.push(gamestate.rounds[i].p2);
+    }
+    return testResponse;
+}
+
+function areTheirLastFourSame(gamestate) {
+    const lastRound = gamestate.rounds.length-1;
+    const lastFour = [ gamestate.rounds[lastRound].p2, gamestate.rounds[lastRound-1].p2, gamestate.rounds[lastRound-2].p2, gamestate.rounds[lastRound-3].p2 ];
+    const allEqual = !!lastFour.reduce(function(a, b){ return (a === b) ? a : NaN; });
+    return allEqual;
+}
+
+function randomRPSBot() {  
+    const myArray = ['R','P','S'];
+     let rand = myArray[Math.floor(Math.random() * myArray.length)];
+     return rand;
+}
+
+function counterBot(gamestate) {
+     const previousMove = getTheirPreviousMove(gamestate);
+     return counterMove(previousMove);
+}
+
+function antiCounterBot(gamestate) {
+     const myPreviousMove = getMyPreviousMove(gamestate);
+     const theirPredictedMove = counterMove(myPreviousMove);
+     return counterMove(theirPredictedMove);
+}
+
+function metaBot(gamestate) {
+     const theirPreviousMove = getTheirPreviousMove(gamestate);
+     const theyPredictMyMove = counterMove(theirPreviousMove);
+     const theirPredictedMove = counterMove(theyPredictMyMove);
+     return counterMove(theirPredictedMove);
+}
+
+function antiMetaBot(gamestate) {
+     const myPreviousMove = getMyPreviousMove(gamestate);
+     const theirPredictedMove = counterMove(myPreviousMove);
+     const theyPredictMyMove = counterMove(theirPredictedMove);
+     const whatIReallyPredict = counterMove(theyPredictMyMove);
+     return counterMove(whatIReallyPredict);
+}
+
+function weirdBot(gamestate) {
+     const myPreviousMove = getMyPreviousMove(gamestate);
+     let predictedMove;
+     switch (myPreviousMove) {
+             case 'R': predictedMove = 'S'; break;
+             case 'P': predictedMove = 'R'; break;
+             case 'S': predictedMove = 'P'; break;
+             case 'D': predictedMove = 'W'; break;
+             case 'W': predictedMove = 'P'; break;
+     }
+     return counterMove(predictedMove);
+}
+
+function countDraws(gamestate) {
+    const lastRound = gamestate.rounds.length-1;
+    let drawsNumber = 0;
+    for (i=0; i<20; i++) {
+        if (gamestate.rounds[lastRound-i].p1 === gamestate.rounds[lastRound-i].p2) {
+            drawsNumber ++;
+        } else {
+            return drawsNumber;
+        }
+    }
+}
 
 class Bot {
     makeMove(gamestate) {
@@ -19,12 +111,45 @@ class Bot {
         }
         
         if (gamestate.rounds.length === 16) {
-            Bot.testResponse = f.getTestResponse(gamestate);              //Get the test response
+            Bot.testResponse = getTestResponse(gamestate);              //Get the test response
+        }
+
+        if (Bot.doTheyDynamite === 'testing') {
+            const testMove = getTheirPreviousMove(gamestate);
+            if (testMove === 'D') {
+                Bot.doTheyDynamite = 'probs';
+            } else {
+                Bot.doTheyDynamite = 'no';
+            }
+        }
+
+        if (Bot.doTheyDynamite === 'doubleCheck') {
+            const testMove = getTheirPreviousMove(gamestate);
+            if (testMove === 'D') {
+                Bot.doTheyDynamite = 'yes';
+            } else {
+                Bot.doTheyDynamite = 'no';
+            }
         }
         
+        if (countDraws(gamestate) > 1) {
+            if (Bot.doTheyDynamite === 'yes') {
+                Bot.doTheyDynamite = 'doubleCheck';
+                console.log('WATERTRIBE')
+                return 'W';
+            }
+            if (Bot.doTheyDynamite === 'probs') {
+                Bot.doTheyDynamite = 'doubleCheck';
+            }
+            else {
+                Bot.doTheyDynamite = 'testing';
+                // Bot.dynamite--;
+                // return 'D';
+            }
+        }
+        
+        
         // console.log(Bot.testResponse.toString());             //To identify the response pattern of different bots
-
-        console.log(gamestate);
 
         const rand = Math.random();                             //Randomly play dynamite
         if (rand > 0.9 && Bot.dynamite > 0) {
@@ -33,35 +158,35 @@ class Bot {
         }
                                             
         if (Bot.testResponse.toString() === 'P,P,R,P,P,P,S,S,R,S,S,S,R,P,R') {    //If they're playing counterBot...
-            const nextMove = behaviour.antiCounterBot(gamestate);
+            const nextMove = antiCounterBot(gamestate);
             return nextMove;
         }
 
         if (Bot.testResponse.toString() === 'S,P,R,S,P,R,S,P,R,S,P,R,S,P,R' ||       // If they're playing antiCounterBot...
         Bot.testResponse.toString() === 'R,S,P,R,S,P,R,S,P,R,S,P,R,S,P'||
         Bot.testResponse.toString() === 'P,R,S,P,R,S,P,R,S,P,R,S,P,R,S') {
-            const nextMove = behaviour.metaBot(gamestate);
+            const nextMove = metaBot(gamestate);
             return nextMove;
         }
 
         if (Bot.testResponse.toString() === 'R,R,S,R,R,R,P,P,S,P,P,P,S,R,S') {       //If they're playing metaBot...
-            const nextMove = behaviour.antiMetaBot(gamestate);
+            const nextMove = antiMetaBot(gamestate);
             return nextMove;
         }
 
         if (Bot.testResponse.toString() === 'S,S,P,S,S,S,R,R,P,R,R,R,P,S,P') {      //Honestly idk why their bot would do this
-            const nextMove = behaviour.weirdBot(gamestate);
+            const nextMove = weirdBot(gamestate);
             return nextMove;
         }
 
-        if (f.areTheirLastFourSame(gamestate) === true) {
-            Bot.theyAreSpamming = f.getTheirPreviousMove(gamestate);
+        if (areTheirLastFourSame(gamestate) === true) {
+            Bot.theyAreSpamming = getTheirPreviousMove(gamestate);
             Bot.spammingRound = gamestate.rounds.length;
-            return f.counterMove(f.getTheirPreviousMove(gamestate));
+            return counterMove(getTheirPreviousMove(gamestate));
         }
 
         if (Bot.spammingRound > gamestate.rounds.length-4) {
-            return f.counterMove(Bot.theyAreSpamming);
+            return counterMove(Bot.theyAreSpamming);
         }
 
          else {                                                                     //Play a random move
@@ -73,4 +198,3 @@ class Bot {
 }
 
 module.exports = new Bot();
-

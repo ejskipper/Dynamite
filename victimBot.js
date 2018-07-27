@@ -84,7 +84,7 @@ function weirdBot(gamestate) {
 function countDraws(gamestate) {
     const lastRound = gamestate.rounds.length-1;
     let drawsNumber = 0;
-    for (i=0; i<20; i++) {
+    for (i=0; i<10; i++) {
         if (gamestate.rounds[lastRound-i].p1 === gamestate.rounds[lastRound-i].p2) {
             drawsNumber ++;
         } else {
@@ -113,6 +113,39 @@ class Bot {
         if (gamestate.rounds.length === 16) {
             Bot.testResponse = getTestResponse(gamestate);              //Get the test response
         }
+
+
+        if (Bot.doTheyWater === 'testing') {
+            const testMove = getTheirPreviousMove(gamestate);
+            if (testMove === 'W') {
+                Bot.doTheyWater = 'probs';
+            } else {
+                Bot.doTheyWater = 'no';
+            }
+        }
+
+        if (Bot.doTheyWater === 'doubleCheck') {
+            const testMove = getTheirPreviousMove(gamestate);
+            if (testMove === 'W') {
+                Bot.doTheyWater = 'yes';
+            } else {
+                Bot.doTheyWater = 'no';
+            }
+        }
+        
+        if (countDraws(gamestate) > 1) {
+            if (Bot.doTheyWater === 'yes') {
+                Bot.doTheyWater = 'doubleCheck';
+                return randomRPSBot();
+            }
+            if (Bot.doTheyWater === 'probs') {
+                Bot.doTheyWater = 'doubleCheck';
+            }
+            else {
+                Bot.doTheyWater = 'testing';
+            }
+        }
+    
 
         if (Bot.doTheyDynamite === 'testing') {
             const testMove = getTheirPreviousMove(gamestate);
@@ -143,8 +176,10 @@ class Bot {
             }
             else {
                 Bot.doTheyDynamite = 'testing';
-                // Bot.dynamite--;
-                // return 'D';
+                if (Bot.dynamite>0) {
+                    Bot.dynamite--;
+                    return 'D';
+                }
             }
         }
         
@@ -176,7 +211,7 @@ class Bot {
 
         if (Bot.testResponse.toString() === 'S,S,P,S,S,S,R,R,P,R,R,R,P,S,P') {      //Honestly idk why their bot would do this
             const nextMove = weirdBot(gamestate);
-            return nextMove;
+            return nextMove; 
         }
 
         if (areTheirLastFourSame(gamestate) === true) {
