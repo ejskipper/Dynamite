@@ -135,7 +135,7 @@ class Bot {
         if (countDraws(gamestate) > 1) {
             if (this.doTheyDynamite === 'yes') {
                 this.doTheyDynamite = 'doubleCheck';
-                console.log('WATERTRIBE')
+                console.log('myWATERTRIBE')
                 return 'W';
             }
             if (this.doTheyDynamite === 'probs') {

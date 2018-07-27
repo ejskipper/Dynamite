@@ -36,6 +36,13 @@ function areTheirLastFourSame(gamestate) {
     return allEqual;
 }
 
+function areMyLastFourSame(gamestate) {
+    const lastRound = gamestate.rounds.length-1;
+    const lastFour = [ gamestate.rounds[lastRound].p1, gamestate.rounds[lastRound-1].p1, gamestate.rounds[lastRound-2].p1, gamestate.rounds[lastRound-3].p1 ];
+    const allEqual = !!lastFour.reduce(function(a, b){ return (a === b) ? a : NaN; });
+    return allEqual;
+}
+
 function randomRPSBot() {  
     const myArray = ['R','P','S'];
      let rand = myArray[Math.floor(Math.random() * myArray.length)];
@@ -97,8 +104,14 @@ class Bot {
     makeMove(gamestate) {
         if (gamestate.rounds.length === 0) {                //Set dynamite counter
             this.dynamite = 100;
+            this.theirDynamite = 100;
         }
-
+        
+        if (gamestate.rounds[0]) {
+            if (getTheirPreviousMove(gamestate) === 'D') {
+                this.theirDynamite--;
+            }
+        }
         const testSequence = ['R','R','S','R','R','R','P','P','S','P','P','P','S','R','S'];     //Define the test sequence
         
         if (gamestate.rounds.length < 15) {                             //Play the test sequence first
@@ -168,8 +181,8 @@ class Bot {
         if (countDraws(gamestate) > 1) {
             if (this.doTheyDynamite === 'yes') {
                 this.doTheyDynamite = 'doubleCheck';
-                console.log('WATERTRIBE')
-                return 'W';
+                    return 'W';
+                
             }
             if (this.doTheyDynamite === 'probs') {
                 this.doTheyDynamite = 'doubleCheck';
@@ -182,12 +195,49 @@ class Bot {
                 }
             }
         }
+
+
+        // if (this.doTheySingleDynamite === 'testing') {
+        //     const testMove = getTheirPreviousMove(gamestate);
+        //     if (testMove === 'D') {
+        //         this.doTheySingleDynamite = 'probs';
+        //     } else {
+        //         this.doTheySingleDynamite = 'no';
+        //     }
+        // }
+
+        // if (this.doTheySingleDynamite === 'doubleCheck') {
+        //     const testMove = getTheirPreviousMove(gamestate);
+        //     if (testMove === 'D') {
+        //         this.doTheySingleDynamite = 'yes';
+        //     } else {
+        //         this.doTheySingleDynamite = 'no';
+        //     }
+        // }
         
+        // if (countDraws(gamestate) === 1) {
+        //     if (this.doTheySingleDynamite === 'yes') {
+        //         this.doTheySingleDynamite = 'doubleCheck';
+        //         console.log('WATERTRIBE')
+        //         return 'W';
+        //     }
+        //     if (this.doTheySingleDynamite === 'probs') {
+        //         this.doTheySingleDynamite = 'doubleCheck';
+        //     }
+        //     else {
+        //         this.doTheySingleDynamite = 'testing';
+        //         // if (this.dynamite>0) {
+        //         //     this.dynamite--;
+        //         //     return 'D';
+        //         // }
+        //     }
+        // }
+
         
         // console.log(this.testResponse.toString());             //To identify the response pattern of different bots
 
         const rand = Math.random();                             //Randomly play dynamite
-        if (rand > 0.9 && this.dynamite > 0) {
+        if (rand > 0.90 && this.dynamite > 0) {
             this.dynamite--;
             return 'D';
         }
@@ -213,6 +263,20 @@ class Bot {
             const nextMove = weirdBot(gamestate);
             return nextMove; 
         }
+        
+        
+        if (areMyLastFourSame(gamestate) === true) {
+            this.doTheyCounter = 'testing'
+            const theirPredictedMove = counterMove(getMyPreviousMove(gamestate));
+            this.IAmSpamming = getMyPreviousMove(gamestate);
+            this.mySpammingRound = gamestate.rounds.length;
+            return counterMove (theirPredictedMove);
+        }
+
+        if (this.mySpammingRound > gamestate.rounds.length-4) {
+            const theirPredictedMove = counterMove(this.IAmSpamming);
+            return counterMove (theirPredictedMove);
+        }
 
         if (areTheirLastFourSame(gamestate) === true) {
             this.theyAreSpamming = getTheirPreviousMove(gamestate);
@@ -220,7 +284,7 @@ class Bot {
             return counterMove(getTheirPreviousMove(gamestate));
         }
 
-        if (this.spammingRound > gamestate.rounds.length-2) {
+        if (this.spammingRound > gamestate.rounds.length-4) {
             return counterMove(this.theyAreSpamming);
         }
 
