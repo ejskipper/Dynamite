@@ -81,6 +81,18 @@ function weirdBot(gamestate) {
      return counterMove(predictedMove);
 }
 
+function countDraws(gamestate) {
+    const lastRound = gamestate.rounds.length-1;
+    let drawsNumber = 0;
+    for (i=0; i<20; i++) {
+        if (gamestate.rounds[lastRound-i].p1 === gamestate.rounds[lastRound-i].p2) {
+            drawsNumber ++;
+        } else {
+            return drawsNumber;
+        }
+    }
+}
+
 class Bot {
     makeMove(gamestate) {
         if (gamestate.rounds.length === 0) {                //Set dynamite counter
@@ -101,6 +113,41 @@ class Bot {
         if (gamestate.rounds.length === 16) {
             Bot.testResponse = getTestResponse(gamestate);              //Get the test response
         }
+
+        if (Bot.doTheyDynamite === 'testing') {
+            const testMove = getTheirPreviousMove(gamestate);
+            if (testMove === 'D') {
+                Bot.doTheyDynamite = 'probs';
+            } else {
+                Bot.doTheyDynamite = 'no';
+            }
+        }
+
+        if (Bot.doTheyDynamite === 'doubleCheck') {
+            const testMove = getTheirPreviousMove(gamestate);
+            if (testMove === 'D') {
+                Bot.doTheyDynamite = 'yes';
+            } else {
+                Bot.doTheyDynamite = 'no';
+            }
+        }
+        
+        if (countDraws(gamestate) > 1) {
+            if (Bot.doTheyDynamite === 'yes') {
+                Bot.doTheyDynamite = 'doubleCheck';
+                console.log('WATERTRIBE')
+                return 'W';
+            }
+            if (Bot.doTheyDynamite === 'probs') {
+                Bot.doTheyDynamite = 'doubleCheck';
+            }
+            else {
+                Bot.doTheyDynamite = 'testing';
+                // Bot.dynamite--;
+                // return 'D';
+            }
+        }
+        
         
         // console.log(Bot.testResponse.toString());             //To identify the response pattern of different bots
 

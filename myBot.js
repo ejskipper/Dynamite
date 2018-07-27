@@ -24,6 +24,8 @@ class Bot {
         
         // console.log(Bot.testResponse.toString());             //To identify the response pattern of different bots
 
+        console.log(gamestate);
+
         const rand = Math.random();                             //Randomly play dynamite
         if (rand > 0.9 && Bot.dynamite > 0) {
             Bot.dynamite--;
