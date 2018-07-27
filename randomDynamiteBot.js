@@ -1,12 +1,12 @@
 class Bot {
     makeMove(gamestate) {
         if (gamestate.rounds.length === 0) {
-            Bot.dynamite = 100;
+            this.dynamite = 100;
         }
 
         const rand = Math.random();
-        if (rand > 0.9 && Bot.dynamite > 0) {
-            Bot.dynamite--;
+        if (rand > 0.9 && this.dynamite > 0) {
+            this.dynamite--;
             return 'D';
         }
 

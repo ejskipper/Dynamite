@@ -96,7 +96,7 @@ function countDraws(gamestate) {
 class Bot {
     makeMove(gamestate) {
         if (gamestate.rounds.length === 0) {                //Set dynamite counter
-            Bot.dynamite = 100;
+            this.dynamite = 100;
         }
 
         const testSequence = ['R','R','S','R','R','R','P','P','S','P','P','P','S','R','S'];     //Define the test sequence
@@ -106,122 +106,122 @@ class Bot {
         }
 
         if (gamestate.rounds.length === 15) {                           //Play dynamite while getting last element of test response
-            Bot.dynamite--;
+            this.dynamite--;
             return 'D';
         }
         
         if (gamestate.rounds.length === 16) {
-            Bot.testResponse = getTestResponse(gamestate);              //Get the test response
+            this.testResponse = getTestResponse(gamestate);              //Get the test response
         }
 
 
-        if (Bot.doTheyWater === 'testing') {
+        if (this.doTheyWater === 'testing') {
             const testMove = getTheirPreviousMove(gamestate);
             if (testMove === 'W') {
-                Bot.doTheyWater = 'probs';
+                this.doTheyWater = 'probs';
             } else {
-                Bot.doTheyWater = 'no';
+                this.doTheyWater = 'no';
             }
         }
 
-        if (Bot.doTheyWater === 'doubleCheck') {
+        if (this.doTheyWater === 'doubleCheck') {
             const testMove = getTheirPreviousMove(gamestate);
             if (testMove === 'W') {
-                Bot.doTheyWater = 'yes';
+                this.doTheyWater = 'yes';
             } else {
-                Bot.doTheyWater = 'no';
+                this.doTheyWater = 'no';
             }
         }
         
         if (countDraws(gamestate) > 1) {
-            if (Bot.doTheyWater === 'yes') {
-                Bot.doTheyWater = 'doubleCheck';
+            if (this.doTheyWater === 'yes') {
+                this.doTheyWater = 'doubleCheck';
                 return randomRPSBot();
             }
-            if (Bot.doTheyWater === 'probs') {
-                Bot.doTheyWater = 'doubleCheck';
+            if (this.doTheyWater === 'probs') {
+                this.doTheyWater = 'doubleCheck';
             }
             else {
-                Bot.doTheyWater = 'testing';
+                this.doTheyWater = 'testing';
             }
         }
     
 
-        if (Bot.doTheyDynamite === 'testing') {
+        if (this.doTheyDynamite === 'testing') {
             const testMove = getTheirPreviousMove(gamestate);
             if (testMove === 'D') {
-                Bot.doTheyDynamite = 'probs';
+                this.doTheyDynamite = 'probs';
             } else {
-                Bot.doTheyDynamite = 'no';
+                this.doTheyDynamite = 'no';
             }
         }
 
-        if (Bot.doTheyDynamite === 'doubleCheck') {
+        if (this.doTheyDynamite === 'doubleCheck') {
             const testMove = getTheirPreviousMove(gamestate);
             if (testMove === 'D') {
-                Bot.doTheyDynamite = 'yes';
+                this.doTheyDynamite = 'yes';
             } else {
-                Bot.doTheyDynamite = 'no';
+                this.doTheyDynamite = 'no';
             }
         }
         
         if (countDraws(gamestate) > 1) {
-            if (Bot.doTheyDynamite === 'yes') {
-                Bot.doTheyDynamite = 'doubleCheck';
+            if (this.doTheyDynamite === 'yes') {
+                this.doTheyDynamite = 'doubleCheck';
                 console.log('WATERTRIBE')
                 return 'W';
             }
-            if (Bot.doTheyDynamite === 'probs') {
-                Bot.doTheyDynamite = 'doubleCheck';
+            if (this.doTheyDynamite === 'probs') {
+                this.doTheyDynamite = 'doubleCheck';
             }
             else {
-                Bot.doTheyDynamite = 'testing';
-                if (Bot.dynamite>0) {
-                    Bot.dynamite--;
+                this.doTheyDynamite = 'testing';
+                if (this.dynamite>0) {
+                    this.dynamite--;
                     return 'D';
                 }
             }
         }
         
         
-        // console.log(Bot.testResponse.toString());             //To identify the response pattern of different bots
+        // console.log(this.testResponse.toString());             //To identify the response pattern of different bots
 
         const rand = Math.random();                             //Randomly play dynamite
-        if (rand > 0.9 && Bot.dynamite > 0) {
-            Bot.dynamite--;
+        if (rand > 0.9 && this.dynamite > 0) {
+            this.dynamite--;
             return 'D';
         }
                                             
-        if (Bot.testResponse.toString() === 'P,P,R,P,P,P,S,S,R,S,S,S,R,P,R') {    //If they're playing counterBot...
+        if (this.testResponse.toString() === 'P,P,R,P,P,P,S,S,R,S,S,S,R,P,R') {    //If they're playing counterthis...
             const nextMove = antiCounterBot(gamestate);
             return nextMove;
         }
 
-        if (Bot.testResponse.toString() === 'S,P,R,S,P,R,S,P,R,S,P,R,S,P,R' ||       // If they're playing antiCounterBot...
-        Bot.testResponse.toString() === 'R,S,P,R,S,P,R,S,P,R,S,P,R,S,P'||
-        Bot.testResponse.toString() === 'P,R,S,P,R,S,P,R,S,P,R,S,P,R,S') {
+        if (this.testResponse.toString() === 'S,P,R,S,P,R,S,P,R,S,P,R,S,P,R' ||       // If they're playing antiCounterthis...
+        this.testResponse.toString() === 'R,S,P,R,S,P,R,S,P,R,S,P,R,S,P'||
+        this.testResponse.toString() === 'P,R,S,P,R,S,P,R,S,P,R,S,P,R,S') {
             const nextMove = metaBot(gamestate);
             return nextMove;
         }
 
-        if (Bot.testResponse.toString() === 'R,R,S,R,R,R,P,P,S,P,P,P,S,R,S') {       //If they're playing metaBot...
+        if (this.testResponse.toString() === 'R,R,S,R,R,R,P,P,S,P,P,P,S,R,S') {       //If they're playing metathis...
             const nextMove = antiMetaBot(gamestate);
             return nextMove;
         }
 
-        if (Bot.testResponse.toString() === 'S,S,P,S,S,S,R,R,P,R,R,R,P,S,P') {      //Honestly idk why their bot would do this
+        if (this.testResponse.toString() === 'S,S,P,S,S,S,R,R,P,R,R,R,P,S,P') {      //Honestly idk why their bot would do this
             const nextMove = weirdBot(gamestate);
             return nextMove; 
         }
 
         if (areTheirLastFourSame(gamestate) === true) {
-            Bot.theyAreSpamming = getTheirPreviousMove(gamestate);
-            Bot.spammingRound = gamestate.rounds.length;
+            this.theyAreSpamming = getTheirPreviousMove(gamestate);
+            this.spammingRound = gamestate.rounds.length;
             return counterMove(getTheirPreviousMove(gamestate));
         }
 
-        if (Bot.spammingRound > gamestate.rounds.length-4) {
-            return counterMove(Bot.theyAreSpamming);
+        if (this.spammingRound > gamestate.rounds.length-2) {
+            return counterMove(this.theyAreSpamming);
         }
 
          else {                                                                     //Play a random move
